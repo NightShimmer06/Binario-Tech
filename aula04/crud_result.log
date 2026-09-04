@@ -1,0 +1,14 @@
+=== INICIANDO TESTE CRUD ===
+1. Cadastrando Veiculo 1...
+{"id":3,"placa":"AAA-1111","montadora":"Volvo","modelo":"FH","status":"DISPONIVEL"}
+
+2. Cadastrando Veiculo 2...
+{"id":4,"placa":"BBB-2222","montadora":"Scania","modelo":"R450","status":"DISPONIVEL"}
+
+3. Atualizando Veiculo de ID 1...
+{"mensagem":"Status atualizado com sucesso!","veiculo":{"id":1,"placa":"ABC-1234","montadora":"scania","modelo":"R450","status":"EM_ROTA"}}
+
+4. Deletando Veiculo de ID 2...
+{"mensagem":"Veiculo ID 2 removido com sucesso."}
+
+=== TESTE FINALIZADO ===

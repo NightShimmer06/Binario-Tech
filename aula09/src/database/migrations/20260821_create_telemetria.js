@@ -1,0 +1,16 @@
+exports.up = function(knex) {
+	return.knex.schema.createTable('telemetria', function(table) {
+		table.increments('id')primary();
+		table.integer('veiculo_id').unsigned().notNullable();
+		table.float('velocidade').notNullable();
+		table.float('temperatura_motor').notNullable();
+		table.timestamp('capturado_em').defaultTo(knex.fn.now());
+
+		//configuração de chave estrangeira (fk)
+		table.foreign('veiculos_id').references('id').inTable('veiculos').onDelete('CASCADE');
+	});
+};
+
+exports.down = function(knex) {
+	return knex.schema.dropTable('telemetria');
+};

@@ -1,0 +1,71 @@
+const express = require('express');
+const fs = require('fs/promises');
+const path = require('path');
+const cors = require('cors');
+
+const app = express();
+const PORT = 3000;
+const ARQUIVOS_DADOS = path.join(__dirname, 'ocorrencias.json');
+
+app.use(cors());
+app.use(express.json());
+
+//funçao auxiliar Ler arquivo json
+async function lerOcorrencias() {
+	try {
+		const dados = await fs.readFile(ARQUIVOS_DADOS, 'utf-8');
+		return JSON.parse(dados);
+	} catch (erro) {
+		// se o arquivo não existir, retorna array vazio e cria o arquivo
+		await fs.writeFile(ARQUIVOS_DADOS, '[]', 'utf-8');
+		return [];
+	}
+}
+
+//funçao aux. salvar no arquivo JSON
+async function salvarOcorrencias(ocorrencias) {
+	await fs.writeFile(ARQUIVOS_DADOS, JSON.stringify(ocorrencias, null, 2), 'utf-8');
+}
+
+//rota 1 listar todas as ocorrencias
+app.get('/api/v1/ocorrencias', async (req, res) => {
+	try {
+		const ocorrencias = await lerOcorrencias();
+		res.status(200).json(ocorrencias);
+	} catch (erro) {
+		res.status(500).json({ erro: "Erro ao ler base de dados em disco." });
+	}
+});
+
+app.get('/api/ocorrencias/montadora/:nome', async (req, res) => {
+
+//rota 2 cadastrar nova ocorrencia na frota
+app.post('/api/v1/ocorrencias', async (req, res) => {
+	try {
+		const { montadora, placa, descricao, gravidade } = req.body;
+		if (!montadora || !placa || !descricao) {
+			return res.status(400).json({ erro: "Montadora, placa e descrição são obrigatórios." });
+		}
+		
+		const ocorrencias = await lerOcorrencias();
+		const novaOcorrencia = {
+			id: Date.now(),
+			montadora,
+			placa,
+			descricao,
+			gravidade: gravidade || "MEDIA",
+			data_registro: new Date().toISOString()
+		};
+		ocorrencias.push(novaOcorrencia);
+		await salvarOcorrencias(ocorrencias);
+		
+		res.status(201).json(novaOcorrencia);
+	} catch (erro) {
+		console.error("ERRO REAL AQUI:", erro);
+		res.status(500).json({ erro: "Erro ao salvar ocorrencia em disco." });
+	}
+});
+
+app.listen(PORT, () => {
+	console.log(`[Binario Tech] API de Ocorrencias ativa na porta ${PORT}`);
+});
