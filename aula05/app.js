@@ -6,7 +6,7 @@ const manutencoesRouter = require('./routes/manutencoes');
 const validaCnh = require('./middlewares/validaCnh');
 
 const app = express();
-const PORT = 3000;
+const PORT = 3005;
 
 app.use(cors());
 app.use(express.json());

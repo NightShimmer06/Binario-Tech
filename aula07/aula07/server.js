@@ -5,7 +5,7 @@ const mercedesRoutes = require('./src/routes/mercedesRoutes');
 const validaVin = require('./src/middlewares/validaVin');
 
 const app = express();
-const PORT = 3000;
+const PORT = 3005;
 
 //middlewares
 app.use(cors());
