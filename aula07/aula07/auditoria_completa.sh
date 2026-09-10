@@ -8,27 +8,27 @@ echo "==============================================" >> $LOG_FILE
  
 # 1. Consultando Telemetria Scania (GET)
 echo -e "\n Consultando Telemetria Scania (GET)..." >> $LOG_FILE
-curl -s http://localhost:3000/api/v1/telemetria/scania | jq . >> $LOG_FILE
+curl -s http://localhost:3005/api/v1/telemetria/scania | jq . >> $LOG_FILE
  
 # 2. Consultando Telemetria Mercedes-Benz (GET)
 echo -e "\n Consultando Telemetria Mercedes-Benz (GET)..." >> $LOG_FILE
-curl -s http://localhost:3000/api/v1/telemetria/mercedes | jq . >> $LOG_FILE
+curl -s http://localhost:3005/api/v1/telemetria/mercedes | jq . >> $LOG_FILE
 
 # 3. Enviando Dado Válido de Telemetria Scania (POST)
 echo -e "\n Enviando Dado Válido para Scania (POST)..." >> $LOG_FILE
-curl -s -X POST http://localhost:3000/api/v1/telemetria/scania \
+curl -s -X POST http://localhost:3005/api/v1/telemetria/scania \
        -H "Content-type: application/json" \
        -d '{"modelo":"R450","vin":"9BS555444333","temperatura_motor":90}' | jq . >> $LOG_FILE
  
 # 4. Testando Envio de VIN Inválido para Telemetria Scania (POST) - REMOVIDO JQ
 echo -e "\n Testando Envio de VIN Inválido para Scania (POST)..." >> $LOG_FILE
-curl -s -X POST http://localhost:3000/api/v1/telemetria/scania \
+curl -s -X POST http://localhost:3005/api/v1/telemetria/scania \
         -H "Content-type: application/json" \
         -d '{"modelo":"R450","vin":"12345","temperatura_motor":99}' >> $LOG_FILE
  
 # 5. Testando Endpoint Inexistente (GET/POST) - REMOVIDO JQ
 echo -e "\n Testando Endpoint Inexistente (404)..." >> $LOG_FILE
-curl -s http://localhost:3000/api/v1/telemetria/volvo >> $LOG_FILE
+curl -s http://localhost:3005/api/v1/telemetria/volvo >> $LOG_FILE
  
 echo -e "\n=== AUDITORIA CONCLUÍDA COM SUCESSO ===" >> $LOG_FILE
 echo "Os resultados foram salvos em $LOG_FILE!"
