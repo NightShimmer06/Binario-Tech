@@ -1,0 +1,11 @@
+#!/bin/bash
+
+echo "=========================================="
+echo "Salvando processos do PM2..."
+echo "=========================================="
+pm2 save
+
+echo "--> Configurando inicialização no boot..."
+pm2 startup systemd -u $USER --hp $HOME
+echo "=========================================="
+

@@ -1,0 +1,13 @@
+{
+  "name": "aula19-pm2",
+  "version": "1.0.0",
+  "description": "Gerenciamento de processos e PM2 - binario tech",
+  "main": "server.js",
+  "scripts": {
+    "start": "node serve.js"
+  },
+  "dependecies": {
+  	"dotenv": "^16.4.5",
+  	"express": "^4.19.2"
+	}
+}
