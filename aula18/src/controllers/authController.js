@@ -1,77 +1,84 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { validationResult } = require('express-validator');
+const Usuario = require('../models/Usuario');
 
-// Simulação de banco de dados em memória
-const usuariosDB = [];
+// QUESTÃO 1: Endpoint de Registro com Hash de Senha (bcryptjs, salt 10)
+exports.registrar = async (req, res) => {
+  const erros = validationResult(req);
+  if (!erros.isEmpty()) {
+    return res.status(400).json({ erros: erros.array() });
+  }
 
-const authController = {
-  // Cadastrar Usuário com Hash de Senha
-  registrar: async (req, res) => {
-    try {
-      const { email, senha, perfil } = req.body;
+  const { email, senha } = req.body;
 
-      if (!email || !senha) {
-        return res.status(404).json({ mensagem: "Email e senha são obrigatórios." });
-      }
-
-      if (senha.length < 6) {
-        return res.status(404).json({ mensagem: "A senha deve conter no mínimo 6 caracteres." });
-      }
-
-      const usuarioExiste = usuariosDB.find(u => u.email === email);
-      if (usuarioExiste) {
-        return res.status(400).json({ mensagem: "Usuário já cadastrado." });
-      }
-
-      // Criptografar a senha com salt (fator de custo 10)
-      const senhaHash = await bcrypt.hash(senha, 10);
-      
-      const novoUsuario = { id: usuariosDB.length + 1, email, senhaHash, perfil: perfil || 'OPERADOR' };
-      usuariosDB.push(novoUsuario);
-
-      res.status(201).json({ mensagem: "Usuário registrado com sucesso!", usuarioId: novoUsuario.id });
-    } catch (erro) {
-      res.status(500).json({ erro: "Erro ao registrar usuário." });
+  try {
+    const usuarioExiste = await Usuario.findOne({ email });
+    if (usuarioExiste) {
+      return res.status(400).json({ erro: 'E-mail já cadastrado.' });
     }
-  },
 
-  // Login e Emissão de JWT
-  login: async (req, res) => {
-    try {
-      const { email, senha } = req.body;
+    // Criptografia da senha com bcryptjs (salt 10)
+    const salt = await bcrypt.genSalt(10);
+    const senhaHash = await bcrypt.hash(senha, salt);
 
-      const usuario = usuariosDB.find(u => u.email === email);
-      if (!usuario) {
-        return res.status(401).json({ mensagem: "Credenciais inválidas." });
-      }
-
-      // Validar a senha informada com o hash salvo
-      const senhaValida = await bcrypt.compare(senha, usuario.senhaHash);
-      if (!senhaValida) {
-        return res.status(401).json({ mensagem: "Credenciais inválidas." });
-      }
-
-      // Gerar o token JWT (expira em 1 hora)
-      const token = jwt.sign(
-        { id: usuario.id, email: usuario.email, perfil: usuario.perfil },
-        process.env.JWT_SECRET,
-        { expiresIn: '30m' }
-      );
-
-      res.status(200).json({ status: "AUTENTICADO", token });
-    } catch (erro) {
-      res.status(500).json({ erro: "Erro ao realizar login." });
-    }
-  },
-
-  // Rota Protegida de Teste
-  perfil: (req, res) => {
-    res.status(200).json({
-      mensagem: "Acesso autorizado à rota protegida!",
-      dadosUsuarioLogado: req.usuario
+    const novoUsuario = await Usuario.create({
+      email,
+      senha: senhaHash
     });
+
+    return res.status(201).json({
+      mensagem: 'Usuário cadastrado com sucesso!',
+      usuario: { id: novoUsuario._id, email: novoUsuario.email }
+    });
+  } catch (erro) {
+    return res.status(500).json({ erro: 'Erro interno ao registrar usuário.' });
   }
 };
 
-module.exports = authController;
+// QUESTÃO 2: Endpoint de Login com retorno de Token JWT (30 min)
+exports.login = async (req, res) => {
+  const erros = validationResult(req);
+  if (!erros.isEmpty()) {
+    return res.status(400).json({ erros: erros.array() });
+  }
+
+  const { email, senha } = req.body;
+
+  try {
+    const usuario = await Usuario.findOne({ email });
+    if (!usuario) {
+      return res.status(401).json({ erro: 'Credenciais inválidas.' });
+    }
+
+    const senhaValida = await bcrypt.compare(senha, usuario.senha);
+    if (!senhaValida) {
+      return res.status(401).json({ erro: 'Credenciais inválidas.' });
+    }
+
+    // Gerar JWT contendo id e email com expiração de 30 minutos
+    const token = jwt.sign(
+      { id: usuario._id, email: usuario.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '30m' }
+    );
+
+    return res.status(200).json({
+      mensagem: 'Login realizado com sucesso!',
+      token
+    });
+  } catch (erro) {
+    return res.status(500).json({ erro: 'Erro interno ao realizar login.' });
+  }
+};
+
+// Relatório Privado (Questão 3)
+exports.obterRelatorio = async (req, res) => {
+  return res.status(200).json({
+    status: 'SUCESSO',
+    mensagem: 'Acesso autorizado ao relatório da prova!',
+    usuarioAutenticado: req.usuario,
+    dataGeracao: new Date()
+  });
+};
 

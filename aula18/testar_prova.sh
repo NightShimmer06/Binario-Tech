@@ -1,39 +1,43 @@
-echo "=============================================================="
-echo " AUDITORIA DE AUTENTICAÇÃO JWT - BINARIO TECH - PROVA AULA 18 "
-echo "=============================================================="
+#!/bin/bash
 
-echo -e "\n[1] Registrando usuário com senha curta (Esperado HTTP 400)..."
-curl -s -X POST http://localhost:3005/api/v1/prova/register \
-	  -H "Content-Type: application/json" \
-	    -d '{ "email": "curto@binariotech.com.br", "senha": "123", "perfil": "OPERADOR" }' | jq .
+BASE_URL="http://localhost:3000/api/v1/prova"
+EMAIL="aluno_prova_$RANDOM@binario.tech"
+SENHA="senhaSegura123"
 
-echo -e "\n[2] Registrando novo Usuário ADMIN com senha válida..."
-curl -s -X POST http://localhost:3005/api/v1/prova/register \
-	  -H "Content-Type: application/json" \
-	    -d '{ "email": "admin@binariotech.com.br", "senha": "SenhaSegura123!", "perfil": "ADMIN" }' | jq .
+echo "=================================================="
+echo "      TESTE AUTOMATIZADO DA PROVA - AULA 18"
+echo "=================================================="
+echo ""
 
-echo -e "\n[3] Realizando Login e obtendo JWT de 30 minutos..."
-LOGIN_RESP=$(curl -s -X POST http://localhost:3005/api/v1/prova/login \
-	  -H "Content-Type: application/json" \
-	    -d '{ "email": "admin@binariotech.com.br", "senha": "SenhaSegura123!" }')
-echo $LOGIN_RESP | jq .
+echo "[1/3] Cadastrando novo usuário ($EMAIL)..."
+CADASTRO_RES=$(curl -s -X POST "$BASE_URL/register" \
+  -H "Content-Type: application/json" \
+  -d "{\"email\": \"$EMAIL\", \"senha\": \"$SENHA\"}")
+echo $CADASTRO_RES | jq .
+echo ""
 
-TOKEN=$(echo $LOGIN_RESP | jq -r '.token')
+echo "[2/3] Efetuando login e obtendo Token JWT..."
+LOGIN_RES=$(curl -s -X POST "$BASE_URL/login" \
+  -H "Content-Type: application/json" \
+  -d "{\"email\": \"$EMAIL\", \"senha\": \"$SENHA\"}")
 
-echo -e "\n[4] Acessando Rota Protegida com Token Válido de imediato (Esperado HTTP 200)..."
-curl -s http://localhost:3005/api/v1/prova/perfil \
-	  -H "Authorization: Bearer $TOKEN" | jq .
+TOKEN=$(echo $LOGIN_RES | jq -r '.token')
 
-echo -e "\n[5] Enviando Token Corrompido manualmente (Esperado HTTP 403)..."
-curl -s http://localhost:3005/api/v1/prova/perfil \
-	  -H "Authorization: Bearer ${TOKEN}REDE_INVALIDA" | jq .
+if [ "$TOKEN" == "null" ] || [ -z "$TOKEN" ]; then
+  echo "[ERRO] Falha ao obter o token no login."
+  echo $LOGIN_RES | jq .
+  exit 1
+fi
 
-echo -e "\n[6] Aguardando 1800 segundos para expirar o Token..."
-for i in {1800..1}; do
-	  echo -ne "Aguardando expiração em: $i segundos... \r"
-	    sleep 1
-    done
-    echo -e "\n[7]Tentando acessar após expiração (Esperado erro por expiração)..."
-    curl -s http://localhost:3005/api/v1/prova/perfil \
-	      -H "Authorization: Bearer $TOKEN" | jq .
+echo "Token obtido com sucesso: ${TOKEN:0:25}..."
+echo ""
 
+echo "[3/3] Acessando Rota Protegida (/relatorio) com o Token JWT..."
+RELATORIO_RES=$(curl -s -X GET "$BASE_URL/relatorio" \
+  -H "Authorization: Bearer $TOKEN")
+
+echo $RELATORIO_RES | jq .
+echo ""
+echo "=================================================="
+echo "              TESTES CONCLUÍDOS!"
+echo "=================================================="

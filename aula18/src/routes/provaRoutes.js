@@ -1,18 +1,22 @@
 const express = require('express');
-const router = express.Router();
+const { body } = require('express-validator');
 const authController = require('../controllers/authController');
 const validarJWT = require('../middlewares/validarJWT');
-const validarPerfil = require('../middlewares/validarPerfil');
 
-// Rotas públicas
-router.post('/register', authController.registrar);
-router.post('/login', authController.login);
+const router = express.Router();
 
-// Rota privada (exige Token JWT)
-	router.get('/perfil', validarJWT, authController.perfil);
+const validacaoAuth = [
+  body('email').isEmail().withMessage('Informe um e-mail válido.'),
+  body('senha').isLength({ min: 6 }).withMessage('A senha deve ter no mínimo 6 caracteres.')
+];
 
-router.get('/admin-dashboard', validarJWT, validarPerfil(['ADMIN']), (req, res) => {
-  res.json({ mensagem: "Bem-vindo ao painel administrativo!" });
-});
+// Rota Questão 1
+router.post('/register', validacaoAuth, authController.registrar);
+
+// Rota Questão 2
+router.post('/login', validacaoAuth, authController.login);
+
+// Rota Questão 3 (Protegida por JWT)
+router.get('/relatorio', validarJWT, authController.obterRelatorio);
 
 module.exports = router;
