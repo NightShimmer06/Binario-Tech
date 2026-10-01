@@ -8,7 +8,7 @@ app.use(express.json());
 app.get('/api/v1/versao', (req, res) => {
 	res.json({
 		aplicacao: "API Binario Tech - CI/CD Pipeline",
-		versao: "1.0.0",
+		versao: "1.0.1",
 		ambiente: "Servidor de homologação local",
 		uptime: process.uptime(),
 		timestamp: new Date()

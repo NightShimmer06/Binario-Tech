@@ -16,7 +16,8 @@ cd $REPO_DIR/aula21
 npm install --production
 
 echo "[3/4] Reiniciando aplicação no PM2..."
-pm2 restart $APP_NAME
+pm2 delete $APP_NAME 2>/dev/null || true
+pm2 start server.js --name "$APP_NAME"
 
 echo "[4/4] Executando Smoke Test na API (Porta $PORT)..."
 sleep 2
@@ -24,7 +25,7 @@ HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$PORT/api/
 
 if [ "$HTTP_STATUS" -eq 200 ]; then
 	echo -e "\n[SUCESSO] Deploy realizado e verificado com sucesso! HTTP Status 200."
-	pm2 list | grep $APP_NAME --lines 20
+	pm2 list | grep $APP_NAME
 	exit 1
 else
 	echo -e "\n[FALHA] Smoke Test falhou com status $HTTP_STATUS! HTTP Status 200."
