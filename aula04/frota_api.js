@@ -21,7 +21,7 @@ app.get('/api/v1/veiculos', (req, res) => {
 app.get('/api/v1/veiculos/:id', (req, res) => {
 	const id = parseInt(req.params.id);
 	const veiculo = veiculos.find(v => v.id === id);
-	if (veiculo) {
+	if (!veiculo) {
 		return res.status(404).json({ erro: "veiculo nao encontrado na base de dados."});
 	}
 	res.status(200).json(veiculo);
