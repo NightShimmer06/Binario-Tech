@@ -1,0 +1,13 @@
+{
+  "name": "prova_aula03",
+  "version": "1.0.0",
+  "description": "Prova utilizando a aula 3",
+  "main": "telemetria.js",
+  "scripts": {
+    "start": "node telemetria.js &"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "httpie": "^1.1.2"
+  }
+}
