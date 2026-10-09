@@ -14,6 +14,12 @@ PID=$(pgrep -f ocorrencias_api.js)
  sudo kill -9 $PID
 
  echo -e "\n[2] Excluindo arquivo..."
+
+# Para caso precise repor o conteudo do ocorrencias_api futuramente
+cat ocorrencias_api.js > .ocorrencias_backup
+
+sleep 5
+
 # Sobrescreve o arquivo com um array vazio para resetar a persistência
 echo "[]" > ocorrencias_api.js
 
