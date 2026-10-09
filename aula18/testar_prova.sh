@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASE_URL="http://localhost:3000/api/v1/prova"
+BASE_URL="http://localhost:3005/api/v1/prova"
 EMAIL="aluno_prova_$RANDOM@binario.tech"
 SENHA="senhaSegura123"
 

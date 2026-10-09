@@ -2,4 +2,4 @@
 {"erro":"Acesso nao autorizado. Header 'X-API-KEY' invalido ou ausente."}
 {"erro":"Acesso nao autorizado. Header 'X-API-KEY' invalido ou ausente."}
 {"erro":"Acesso nao autorizado. Header 'X-API-KEY' invalido ou ausente."}
-{"erro":"Acesso nao autorizado. Header 'X-API-KEY' invalido ou ausente."}
+{"mensagem":"Listagem de manutenções realizada com sucesso."}
