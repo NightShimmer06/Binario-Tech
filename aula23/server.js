@@ -38,3 +38,21 @@ try {
 app.listen(PORT, () => {
 	console.log(`[Binário Tech] API Orquestrada rodando na porta ${PORT}`);
 });
+
+// Rota para resetar o contador de visitas no Redis - Exercicio 1
+app.delete('/api/v1/visitas/reset', async (req, res) => {
+	try {
+    		await client.set('contador_visitas', 0);
+		return res.status(200).json({
+      		status: "SUCESSO",
+      		mensagem: "Contador de visitas resetado com sucesso!",
+      		totalVisitas: 0
+		});
+  	} catch (error) {
+    		return res.status(500).json({
+      		status: "ERRO",
+      		mensagem: error.message
+		});
+	}
+});
+
